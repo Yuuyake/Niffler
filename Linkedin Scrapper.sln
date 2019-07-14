@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29025.244
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Linkedin Scrapper", "Linkedin Scrapper.csproj", "{BE722253-6A90-4AF0-A5E7-A91E52B93600}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BE722253-6A90-4AF0-A5E7-A91E52B93600}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BE722253-6A90-4AF0-A5E7-A91E52B93600}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BE722253-6A90-4AF0-A5E7-A91E52B93600}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BE722253-6A90-4AF0-A5E7-A91E52B93600}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {349AF2F0-8486-45B3-9B91-788431B9302D}
+	EndGlobalSection
+EndGlobal

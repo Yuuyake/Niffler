@@ -1,0 +1,22 @@
+C:\Users\some\source\repos\Linkedin Scrapper\obj\Debug\Linkedin Scrapper.csprojAssemblyReference.cache
+C:\Users\some\source\repos\Linkedin Scrapper\obj\Debug\Linkedin Scrapper.csproj.CoreCompileInputs.cache
+C:\Users\some\source\repos\Linkedin Scrapper\bin\Debug\Linkedin Scrapper.exe.config
+C:\Users\some\source\repos\Linkedin Scrapper\bin\Debug\Linkedin Scrapper.exe
+C:\Users\some\source\repos\Linkedin Scrapper\bin\Debug\Linkedin Scrapper.pdb
+C:\Users\some\source\repos\Linkedin Scrapper\bin\Debug\Colorful.Console.dll
+C:\Users\some\source\repos\Linkedin Scrapper\bin\Debug\WebDriver.dll
+C:\Users\some\source\repos\Linkedin Scrapper\bin\Debug\WebDriver.xml
+C:\Users\some\source\repos\Linkedin Scrapper\obj\Debug\Linkedin Scrapper.csproj.CopyComplete
+C:\Users\some\source\repos\Linkedin Scrapper\obj\Debug\Linkedin Scrapper.exe
+C:\Users\some\source\repos\Linkedin Scrapper\obj\Debug\Linkedin Scrapper.pdb
+C:\Users\Yuuyake\Desktop\Street\Console\Linkedin_Scrapper_CSharp\bin\Debug\Linkedin Scrapper.exe.config
+C:\Users\Yuuyake\Desktop\Street\Console\Linkedin_Scrapper_CSharp\bin\Debug\Linkedin Scrapper.exe
+C:\Users\Yuuyake\Desktop\Street\Console\Linkedin_Scrapper_CSharp\bin\Debug\Linkedin Scrapper.pdb
+C:\Users\Yuuyake\Desktop\Street\Console\Linkedin_Scrapper_CSharp\bin\Debug\Colorful.Console.dll
+C:\Users\Yuuyake\Desktop\Street\Console\Linkedin_Scrapper_CSharp\bin\Debug\WebDriver.dll
+C:\Users\Yuuyake\Desktop\Street\Console\Linkedin_Scrapper_CSharp\bin\Debug\WebDriver.xml
+C:\Users\Yuuyake\Desktop\Street\Console\Linkedin_Scrapper_CSharp\obj\Debug\Linkedin Scrapper.csprojAssemblyReference.cache
+C:\Users\Yuuyake\Desktop\Street\Console\Linkedin_Scrapper_CSharp\obj\Debug\Linkedin Scrapper.csproj.CoreCompileInputs.cache
+C:\Users\Yuuyake\Desktop\Street\Console\Linkedin_Scrapper_CSharp\obj\Debug\Linkedin Scrapper.csproj.CopyComplete
+C:\Users\Yuuyake\Desktop\Street\Console\Linkedin_Scrapper_CSharp\obj\Debug\Linkedin Scrapper.exe
+C:\Users\Yuuyake\Desktop\Street\Console\Linkedin_Scrapper_CSharp\obj\Debug\Linkedin Scrapper.pdb
