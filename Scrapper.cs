@@ -1,91 +1,137 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
+using OpenQA.Selenium.Firefox;
+using OpenQA.Selenium.IE;
 using System.Linq;
 using System.IO;
 using static System.Console;
+using Console = Colorful.Console;
+using System.Threading;
+using System.Drawing;
 
-//          > user Class ı ekle ve infoları içine at
-//          > printle class ı ayır, işlemlerden sonra print yap
+//           işlemlerden sonra print yap
 
 namespace Linkedin_Scrapper
 {
     class Scrapper
     {
-        static public IWebDriver driver      = new ChromeDriver(@"./../../");
-        static public string loginID         =  "YOUR_CREDS"; 
-        static public string loginPassword   =  "YOUR_CREDS";
+        static public IWebDriver driver     = new ChromeDriver(@"YOUR chrome.exe path"); 
+        static public string loginID        = "YOUR_LOGIN_CRED_MAIL";
+        static public string loginPassword  = "YOUR_LOGIN_CRED_PASS";
 
         [STAThread]
         static void Main()
         {
             Console.Title = "Kakkide";
-            Console.WriteLine("\tCurrent Code Page is\t: " + Console.OutputEncoding.WebName);
+            Console.WriteLineFormatted("\tCurrent Code Page is  : " + Console.OutputEncoding.WebName,Color.LightGoldenrodYellow);
             Console.OutputEncoding = Encoding.UTF8;
-            Console.WriteLine("\tCode Page is set to\t: " + Console.OutputEncoding.WebName);
+            Console.WriteLineFormatted("\tCode Page is set to   : " + Console.OutputEncoding.WebName,Color.LightGoldenrodYellow);
 
             driver.Navigate().GoToUrl("https://www.linkedin.com/login?trk=guest_homepage-basic_nav-header-signin");
-            driver.FindElement(By.XPath("//*[@id=\"username\"]")).SendKeys(loginID); 
-            driver.FindElement(By.XPath("//*[@id=\"password\"]")).SendKeys(loginPassword);  
-            driver.FindElement(By.XPath("//*[@type=\"submit\"]")).Click(); 
+            driver.FindElement(By.XPath("//*[@id=\"username\"]")).SendKeys(loginID);
+            driver.FindElement(By.XPath("//*[@id=\"password\"]")).SendKeys(loginPassword);
+            driver.FindElement(By.XPath("//*[@type=\"submit\"]")).Click();
 
             List<string> personPages = new List<string>{
-                "https://www.linkedin.com/in/esen-girit-t%C3%BCmer-b99a706/",
                 "https://www.linkedin.com/in/altan-demirdere-08a56915a/",
+                "https://www.linkedin.com/in/esen-girit-t%C3%BCmer-b99a706/",
                 "https://www.linkedin.com/in/fatih-islamoglu-11892a6/",
                 "https://www.linkedin.com/in/zuhtusoylu/"
             };
             List<Person> personList = new List<Person> { };
             foreach (string personPage in personPages)
             { // process each user
-                Console.Write("===============================================================================");
+                int clr = 1 + personPages.IndexOf(personPage)*7;
+                //Console.BackgroundColor =  Color.FromArgb(clr,clr,clr); 
+                Console.WriteLineFormatted("===============================================================================",Color.Red);
                 personList.Add(new Person(personPage));
             }
-            Console.WriteLine("DONE."); 
-            driver.Quit(); 
+            Console.WriteLineFormatted("============================    DONE    =====================================", Color.Red);
+            ReadLine();
+            driver.Quit();
         }
+
+        public static System.Drawing.Color FromColor(System.ConsoleColor c)
+        {
+            int[] cColors = {   0x000000, //Black = 0
+                        0x000080, //DarkBlue = 1
+                        0x008000, //DarkGreen = 2
+                        0x008080, //DarkCyan = 3
+                        0x800000, //DarkRed = 4
+                        0x800080, //DarkMagenta = 5
+                        0x808000, //DarkYellow = 6
+                        0xC0C0C0, //Gray = 7
+                        0x808080, //DarkGray = 8
+                        0x0000FF, //Blue = 9
+                        0x00FF00, //Green = 10
+                        0x00FFFF, //Cyan = 11
+                        0xFF0000, //Red = 12
+                        0xFF00FF, //Magenta = 13
+                        0xFFFF00, //Yellow = 14
+                        0xFFFFFF  //White = 15
+                    };
+            return Color.FromArgb(cColors[(int)c]);
+        }
+
     }
     public class Person
     {
         public List<Exp> experiences = new List<Exp> { };
-        public List<Edu> educations = new List<Edu> { };
+        public List<Edu> educations  = new List<Edu> { };
         public string fullName = "??";
-        public Person(string personPage){
+
+        public Person(string personPage)
+        {
             Scrapper.driver.Navigate().GoToUrl(personPage);
+
             // clicking show more areas
-            var showMoreButtons = Scrapper.driver.FindElements(By.ClassName("pv-profile-section__text-truncate-toggle"));
+
+            var showMoreButtons = Scrapper.driver.FindElements(By.ClassName("pv-profile-section__text-truncate-toggle")).ToList();
             var expectedButtons = new List<string> { "more role", "more education", "more experience" };
-            var clickButtons = showMoreButtons.Where(button => expectedButtons.Count(expcButton => button.Text.Contains(expcButton)) > 0);
+            var clickButtons    = showMoreButtons.Where(button => expectedButtons.Count(expcButton => button.Text.Contains(expcButton)) > 0).ToList();
             foreach (var bt in clickButtons)
                 bt.Click();
+
+            //wait to make sure buttons clicked and data is loaded properly
+            while (true)
+            {
+                var showFewerButtons = Scrapper.driver.FindElements(By.ClassName("pv-profile-section__text-truncate-toggle")).ToList();
+                var waitedButtons    = new List<string> { "fewer role", "fewer education", "fewer experience" };
+                var fewButtons       = showFewerButtons.Where(button => waitedButtons.Count(wButtons => button.Text.Contains(wButtons)) > 0).ToList();
+                if (fewButtons.Count < clickButtons.Count)
+                    Thread.Sleep(500);
+                else
+                    break;
+            }
 
             var userInfos = Scrapper.driver.FindElements(By.XPath("//*[contains(@class,'pv-entity__summary-info')]"));
             var eduInfos  = Scrapper.driver.FindElements(By.ClassName("pv-education-entity"));
             var expInfos  = Scrapper.driver.FindElements(By.ClassName("pv-position-entity"));
 
             var userID = personPage.Split('/')[4];
-            Write("\n\t\t" + userID + "\n");
-            Write(" |\n | EDUCATION:______________________________________________________________________________");
+            Write("\r\n\t\t" + userID + "\r\n");
+            Console.WriteFormatted(" |\r\n | EDUCATION:__________________________________________________________________", Color.Cyan);
             File.WriteAllText(userID + ".txt",
-                " |\n | EDUCATION:______________________________________________________________________________");
+                " |\r\n | EDUCATION:__________________________________________________________________");
 
             foreach (var eduInfo in eduInfos)
             {
-                var attrs = eduInfo.Text.Replace("\r", "").Split('\n').ToList();
-                var newEdu = new Edu(attrs);
+                var attrs   = eduInfo.Text.Replace("\r", "").Split('\n').ToList();
+                var newEdu  = new Edu(attrs);
                 File.AppendAllText(userID + ".txt", newEdu.eduPrint());
                 educations.Add(newEdu);
             }
-            Write("\n | EXP:______________________________________________________________________________\n");
+            Console.WriteFormatted(" |\r\n | EXPERIENCE:__________________________________________________________________", Color.Cyan);
             File.WriteAllText(userID + ".txt",
-                "\n | EXP:______________________________________________________________________________\n");
+                "\r\n | EXPERIENCE:__________________________________________________________________\r\n");
 
             foreach (var expInfo in expInfos)
             {
-                var attrs = expInfo.Text.Replace("\r", "").Split('\n').ToList();
-                var newExp = new Exp(attrs);
+                var attrs   = expInfo.Text.Replace("\r", "").Split('\n').ToList();
+                var newExp  = new Exp(attrs);
                 File.AppendAllText(userID + ".txt", newExp.expPrint());
                 experiences.Add(newExp);
             }
@@ -118,18 +164,18 @@ namespace Linkedin_Scrapper
             int jobAmount = exp.Count(ss => ss == "Title");
             for (var i = 0; i < jobAmount; i++)
             {
-                jobs.Add(new Job(exp.GetRange(exp.IndexOf("Title"),6)));
+                jobs.Add(new Job(exp.GetRange(exp.IndexOf("Title"), 6)));
                 var indexOfSecondExp = exp.IndexOf("Title", exp.IndexOf("Title") + 1);
-                if(indexOfSecondExp != -1 )
-                    exp.RemoveRange(exp.IndexOf("Title"),indexOfSecondExp);
+                if (indexOfSecondExp != -1)
+                    exp.RemoveRange(exp.IndexOf("Title"), indexOfSecondExp);
             }
         }
         internal string expPrint()
-        {   
-            var ret = "\n\t>>" + companyName + "\t" + totalDuration;
-            Console.WriteLine(ret);
-            foreach(Job job in jobs)
+        {
+            var ret = "\r\n\t>>" + companyName + "\t" + totalDuration + "\r\n";
+            foreach (Job job in jobs)
                 ret += job.eprint();
+            Console.WriteLine(ret);
             return ret;
         }
     }
@@ -142,21 +188,21 @@ namespace Linkedin_Scrapper
 
         public Job(List<string> jobInfos)
         {
-            title       = jobInfos.IndexOf("Title") != -1               ? jobInfos[jobInfos.IndexOf("Title") + 1] : "??";
+            title       = jobInfos.IndexOf("Title") != -1 ? jobInfos[jobInfos.IndexOf("Title") + 1] : "??";
             empDuration = jobInfos.IndexOf("Employment Duration") != -1 ? jobInfos[jobInfos.IndexOf("Employment Duration") + 1] : "??";
-            dateIterval = jobInfos.IndexOf("Dates Employed") != -1      ? jobInfos[jobInfos.IndexOf("Dates Employed") + 1] : "??";
+            dateIterval = jobInfos.IndexOf("Dates Employed") != -1 ? jobInfos[jobInfos.IndexOf("Dates Employed") + 1] : "??";
         }
 
-        public Job(string title,string dateIterval, string empDuration)
+        public Job(string title, string dateIterval, string empDuration)
         {
-            this.title = title;
+            this.title       = title;
             this.dateIterval = dateIterval;
             this.empDuration = empDuration;
         }
 
         internal string eprint()
         {
-            var ret = "\n\t\t" + title + "\n\t\t" + dateIterval + "\n\t\t" + empDuration;
+            var ret = "\r\n " + title + "\r\n\t" + dateIterval + "\r\n\t" + empDuration + "\r";
             Console.WriteLine(ret);
             return ret;
         }
@@ -168,25 +214,27 @@ namespace Linkedin_Scrapper
         public string date;
         public string field;
         public string xx;
-        public Edu(string schoolName = "??",string date="??",string field = "??",string xx = "??")
+        public Edu(string schoolName = "??", string date = "??", string field = "??", string xx = "??")
         {
             this.schoolName = schoolName;
-            this.date       = date;
-            this.field      = field;
-            this.xx         = xx;
+            this.date = date;
+            this.field = field;
+            this.xx = xx;
         }
         public Edu(List<string> eduInfo)
         {
-            DEGREEE NAME EKLEEEEEEEEEEEEEEEEEEEEE
-            var fieldIndex  = eduInfo.IndexOf("Field Of Study");
-            var dateIndex   = eduInfo.IndexOf("Dates attended or expected graduation");
-            this.field      = fieldIndex    != -1 ? eduInfo[fieldIndex + 1] : "??";
-            this.date       = dateIndex     != -1 ? eduInfo[dateIndex  + 1] : "??";
+
+            var fieldIndex = eduInfo.IndexOf("Field Of Study");
+            if (fieldIndex == -1)
+                fieldIndex = eduInfo.IndexOf("Degree Name");
+            var dateIndex = eduInfo.IndexOf("Dates attended or expected graduation");
+            this.field = fieldIndex != -1 ? eduInfo[fieldIndex + 1] : "??";
+            this.date = dateIndex != -1 ? eduInfo[dateIndex + 1] : "??";
             this.schoolName = eduInfo[0];
         }
         public string eduPrint()
         {
-            var ret = "\n\t" + schoolName + "\n\t" + field + "\n\t" + date;
+            var ret = "\r\n\t" + schoolName + "\r\n\t" + field + "\r\n\t" + date + "\r\n";
             Console.WriteLine(ret);
             return ret;
         }
