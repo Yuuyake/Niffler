@@ -25,7 +25,7 @@ namespace Linkedin_Scrapper
         [STAThread]
         static void Main()
         {
-            Console.Title = "Kakkide";
+            Console.Title = "Niffler";
             Console.WriteLineFormatted("\tCurrent Code Page is  : " + Console.OutputEncoding.WebName,Color.LightGoldenrodYellow);
             Console.OutputEncoding = Encoding.UTF8;
             Console.WriteLineFormatted("\tCode Page is set to   : " + Console.OutputEncoding.WebName,Color.LightGoldenrodYellow);
