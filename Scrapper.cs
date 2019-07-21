@@ -27,6 +27,8 @@ namespace Linkedin_Scrapper
         static void Main()
         {
             Console.Title = "Niffler";
+            
+            Console.WriteLineFormatted(Resources.banner, Color.LightGoldenrodYellow);
             Console.WriteLineFormatted("\tCurrent Code Page is  : " + Console.OutputEncoding.WebName,Color.LightGoldenrodYellow);
             Console.OutputEncoding = Encoding.UTF8;
             Console.WriteLineFormatted("\tCode Page is set to   : " + Console.OutputEncoding.WebName,Color.LightGoldenrodYellow);
