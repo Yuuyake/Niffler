@@ -19,14 +19,14 @@ namespace Linkedin_Scrapper
 {
     class Scrapper
     {
-        static public IWebDriver driver     = new ChromeDriver(@"./../../"); //new ChromeDriver(@"./../../");
+        static public IWebDriver driver     = new ChromeDriver(@"YOUR chromedriver.exe PATH"); //new ChromeDriver(@"./../../");
         static public string loginID        = "YOUR_LOGIN_CRED_MAIL";
         static public string loginPassword  = "YOUR_LOGIN_CRED_PASS";
 
         [STAThread]
         static void Main()
         {
-            Console.Title = "Kakkide";
+            Console.Title = "Niffler";
             Console.WriteLineFormatted("\tCurrent Code Page is  : " + Console.OutputEncoding.WebName,Color.LightGoldenrodYellow);
             Console.OutputEncoding = Encoding.UTF8;
             Console.WriteLineFormatted("\tCode Page is set to   : " + Console.OutputEncoding.WebName,Color.LightGoldenrodYellow);
