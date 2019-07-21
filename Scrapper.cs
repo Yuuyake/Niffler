@@ -11,6 +11,7 @@ using static System.Console;
 using Console = Colorful.Console;
 using System.Threading;
 using System.Drawing;
+using Microsoft.Office.Interop.Excel;
 
 //           işlemlerden sonra print yap
 
@@ -18,17 +19,20 @@ namespace Linkedin_Scrapper
 {
     class Scrapper
     {
-        static public IWebDriver driver     = new ChromeDriver(@"YOUR chrome.exe path"); 
+        static public IWebDriver driver     = new ChromeDriver(@"./../../"); //new ChromeDriver(@"./../../");
         static public string loginID        = "YOUR_LOGIN_CRED_MAIL";
         static public string loginPassword  = "YOUR_LOGIN_CRED_PASS";
 
         [STAThread]
         static void Main()
         {
-            Console.Title = "Niffler";
+            Console.Title = "Kakkide";
             Console.WriteLineFormatted("\tCurrent Code Page is  : " + Console.OutputEncoding.WebName,Color.LightGoldenrodYellow);
             Console.OutputEncoding = Encoding.UTF8;
             Console.WriteLineFormatted("\tCode Page is set to   : " + Console.OutputEncoding.WebName,Color.LightGoldenrodYellow);
+
+            writeToExcel();
+            return;
 
             driver.Navigate().GoToUrl("https://www.linkedin.com/login?trk=guest_homepage-basic_nav-header-signin");
             driver.FindElement(By.XPath("//*[@id=\"username\"]")).SendKeys(loginID);
@@ -54,29 +58,38 @@ namespace Linkedin_Scrapper
             driver.Quit();
         }
 
-        public static System.Drawing.Color FromColor(System.ConsoleColor c)
+        public static void writeToExcel()
         {
-            int[] cColors = {   0x000000, //Black = 0
-                        0x000080, //DarkBlue = 1
-                        0x008000, //DarkGreen = 2
-                        0x008080, //DarkCyan = 3
-                        0x800000, //DarkRed = 4
-                        0x800080, //DarkMagenta = 5
-                        0x808000, //DarkYellow = 6
-                        0xC0C0C0, //Gray = 7
-                        0x808080, //DarkGray = 8
-                        0x0000FF, //Blue = 9
-                        0x00FF00, //Green = 10
-                        0x00FFFF, //Cyan = 11
-                        0xFF0000, //Red = 12
-                        0xFF00FF, //Magenta = 13
-                        0xFFFF00, //Yellow = 14
-                        0xFFFFFF  //White = 15
-                    };
-            return Color.FromArgb(cColors[(int)c]);
-        }
+            string excelLocation = @"YOUR_EXCEL_FILE_PATH";
+            Application app = new Application();
+            Workbook workbook = app.Workbooks.Open(excelLocation);
+            Worksheet worksheet = workbook.Worksheets[1];
 
+            worksheet.Name = "sheet1";
+            int totalRow = 20;
+
+            Range line = (Range)worksheet.Rows[3];
+            Enumerable.Range(0, totalRow-3).ToList().ForEach(i => line.Insert());
+
+            for (int row = 2; row < totalRow; row++)
+            {
+                for (int column = 1; column < 5; column++)
+                {
+                    worksheet.Cells[row, column].Value = row * column;
+                }
+            }
+
+            workbook.Save();
+            workbook.Close();
+            app.Quit();
+
+        }
     }
+
+
+    /// <summary>
+    /// saves Person Data, exp, edu ...
+    /// </summary>
     public class Person
     {
         public List<Exp> experiences = new List<Exp> { };
@@ -137,7 +150,9 @@ namespace Linkedin_Scrapper
             }
         }
     }
-
+    /// <summary>
+    /// saves an Experience data ( meaning works on a company )
+    /// </summary>
     public class Exp
     {
         public string companyName;
@@ -179,7 +194,9 @@ namespace Linkedin_Scrapper
             return ret;
         }
     }
-
+    /// <summary>
+    /// saves a work data
+    /// </summary>
     public class Job
     {
         public string title;
@@ -207,7 +224,9 @@ namespace Linkedin_Scrapper
             return ret;
         }
     }
-
+    /// <summary>
+    /// saves an Education data
+    /// </summary>
     public class Edu
     {
         public string schoolName;
