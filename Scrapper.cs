@@ -12,6 +12,7 @@ using Console = Colorful.Console;
 using System.Threading;
 using System.Drawing;
 using Microsoft.Office.Interop.Excel;
+using Linkedin_Scrapper.Properties;
 
 //           işlemlerden sonra print yap
 
@@ -19,7 +20,7 @@ namespace Linkedin_Scrapper
 {
     class Scrapper
     {
-        static public IWebDriver driver     = new ChromeDriver(@"YOUR chromedriver.exe PATH"); //new ChromeDriver(@"./../../");
+        static public IWebDriver driver     = new ChromeDriver(@"YOUR chromedriver.exe PATH");
         static public string loginID        = "YOUR_LOGIN_CRED_MAIL";
         static public string loginPassword  = "YOUR_LOGIN_CRED_PASS";
 
@@ -32,9 +33,6 @@ namespace Linkedin_Scrapper
             Console.WriteLineFormatted("\tCurrent Code Page is  : " + Console.OutputEncoding.WebName,Color.LightGoldenrodYellow);
             Console.OutputEncoding = Encoding.UTF8;
             Console.WriteLineFormatted("\tCode Page is set to   : " + Console.OutputEncoding.WebName,Color.LightGoldenrodYellow);
-
-            writeToExcel();
-            return;
 
             driver.Navigate().GoToUrl("https://www.linkedin.com/login?trk=guest_homepage-basic_nav-header-signin");
             driver.FindElement(By.XPath("//*[@id=\"username\"]")).SendKeys(loginID);
@@ -59,44 +57,16 @@ namespace Linkedin_Scrapper
             ReadLine();
             driver.Quit();
         }
-
-        public static void writeToExcel()
-        {
-            string excelLocation = @"YOUR_EXCEL_FILE_PATH";
-            Application app = new Application();
-            Workbook workbook = app.Workbooks.Open(excelLocation);
-            Worksheet worksheet = workbook.Worksheets[1];
-
-            worksheet.Name = "sheet1";
-            int totalRow = 20;
-
-            Range line = (Range)worksheet.Rows[3];
-            Enumerable.Range(0, totalRow-3).ToList().ForEach(i => line.Insert());
-
-            for (int row = 2; row < totalRow; row++)
-            {
-                for (int column = 1; column < 5; column++)
-                {
-                    worksheet.Cells[row, column].Value = row * column;
-                }
-            }
-
-            workbook.Save();
-            workbook.Close();
-            app.Quit();
-
-        }
     }
-
 
     /// <summary>
     /// saves Person Data, exp, edu ...
     /// </summary>
     public class Person
     {
-        public List<Exp> experiences = new List<Exp> { };
-        public List<Edu> educations  = new List<Edu> { };
-        public string fullName = "??";
+        static public List<Exp> experiences = new List<Exp> { };
+        static public List<Edu> educations  = new List<Edu> { };
+        static public string fullName = "??";
 
         public Person(string personPage)
         {
@@ -150,6 +120,34 @@ namespace Linkedin_Scrapper
                 File.AppendAllText(userID + ".txt", newExp.expPrint());
                 experiences.Add(newExp);
             }
+            writeToExcel();
+        }
+
+        public static void writeToExcel()
+        {
+            string excelLocation = @"YOUR_EXCEL_FILE_PATH";
+            Application app = new Application();
+            Workbook workbook = app.Workbooks.Open(excelLocation);
+            Worksheet worksheet = workbook.Worksheets[1];
+
+            worksheet.Name = "sheet1";
+            int maxRow = new int[]{ educations.Count, experiences.Count, 5}.Max();
+
+            Range line = (Range)worksheet.Rows[3]; // insert middle line with number of needed rows -3
+            Enumerable.Range(0, maxRow - 3).ToList().ForEach(i => line.Insert());
+
+            for (int row = 2; row < maxRow; row++)
+            {
+                worksheet.Cells[row, 1].Value = fullName ;
+                worksheet.Cells[row, 2].Value = experiences[row - 2]. ; Continueueueueueueuueue HERE
+                worksheet.Cells[row, 3].Value = experiences[row - 2].field; HERE sütun ayrı doldurulsun
+                worksheet.Cells[row, 4].Value = educations[row - 2].date;
+            }
+
+            workbook.Save();
+            workbook.Close();
+            app.Quit();
+
         }
     }
     /// <summary>
