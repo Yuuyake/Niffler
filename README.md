@@ -1,4 +1,4 @@
-<img src="/icos/niffler_icon.ico" width="200" height="200">
+<img src="/icos/niffler_icon.ico" width="180" height="180">
 
 # Niffler_Linkedin_Scrapper
 Scrapes Linkedin user profiles with Selenium, CSharp
