@@ -48,9 +48,30 @@ namespace Linkedin_Scrapper
             List<Person> personList = new List<Person> { };
             foreach (string personPage in personPages)
             { // process each user
-                int clr = 1 + personPages.IndexOf(personPage)*7;
+                //int clr = 1 + personPages.IndexOf(personPage)*7;
                 //Console.BackgroundColor =  Color.FromArgb(clr,clr,clr); 
                 Console.WriteLineFormatted("===============================================================================",Color.Red);
+                Scrapper.driver.Navigate().GoToUrl(personPage);
+
+                // clicking show more buttons
+                var showMoreButtons = Scrapper.driver.FindElements(By.ClassName("pv-profile-section__text-truncate-toggle")).ToList();
+                var expectedButtons = new List<string> { "more role", "more education", "more experience" };
+                var clickButtons    = showMoreButtons.Where(button => expectedButtons.Count(expcButton => button.Text.Contains(expcButton)) > 0).ToList();
+                foreach (var bt in clickButtons)
+                    bt.Click();
+
+                //wait to make sure buttons clicked and data is loaded properly
+                while (true)
+                {
+                    var showFewerButtons = Scrapper.driver.FindElements(By.ClassName("pv-profile-section__text-truncate-toggle")).ToList();
+                    var waitedButtons    = new List<string> { "fewer role", "fewer education", "fewer experience" };
+                    var fewButtons       = showFewerButtons.Where(button => waitedButtons.Count(wButtons => button.Text.Contains(wButtons)) > 0).ToList();
+                    if (fewButtons.Count < clickButtons.Count)
+                        Thread.Sleep(500);
+                    else
+                        break;
+                }     
+                // get user infos
                 personList.Add(new Person(personPage));
             }
             Console.WriteLineFormatted("============================    DONE    =====================================", Color.Red);
@@ -66,32 +87,14 @@ namespace Linkedin_Scrapper
     {
         static public List<Exp> experiences = new List<Exp> { };
         static public List<Edu> educations  = new List<Edu> { };
-        static public string fullName = "??";
+        static public List<string> languages= new List<string>();
+        static public string fullName   = "??";
+        static public string currTitle  = "??";
+        static public string currPos    = "??";
+        static public string dateBrith  = "??";
 
         public Person(string personPage)
         {
-            Scrapper.driver.Navigate().GoToUrl(personPage);
-
-            // clicking show more areas
-
-            var showMoreButtons = Scrapper.driver.FindElements(By.ClassName("pv-profile-section__text-truncate-toggle")).ToList();
-            var expectedButtons = new List<string> { "more role", "more education", "more experience" };
-            var clickButtons    = showMoreButtons.Where(button => expectedButtons.Count(expcButton => button.Text.Contains(expcButton)) > 0).ToList();
-            foreach (var bt in clickButtons)
-                bt.Click();
-
-            //wait to make sure buttons clicked and data is loaded properly
-            while (true)
-            {
-                var showFewerButtons = Scrapper.driver.FindElements(By.ClassName("pv-profile-section__text-truncate-toggle")).ToList();
-                var waitedButtons    = new List<string> { "fewer role", "fewer education", "fewer experience" };
-                var fewButtons       = showFewerButtons.Where(button => waitedButtons.Count(wButtons => button.Text.Contains(wButtons)) > 0).ToList();
-                if (fewButtons.Count < clickButtons.Count)
-                    Thread.Sleep(500);
-                else
-                    break;
-            }
-
             var userInfos = Scrapper.driver.FindElements(By.XPath("//*[contains(@class,'pv-entity__summary-info')]"));
             var eduInfos  = Scrapper.driver.FindElements(By.ClassName("pv-education-entity"));
             var expInfos  = Scrapper.driver.FindElements(By.ClassName("pv-position-entity"));
@@ -131,18 +134,33 @@ namespace Linkedin_Scrapper
             Worksheet worksheet = workbook.Worksheets[1];
 
             worksheet.Name = "sheet1";
-            int maxRow = new int[]{ educations.Count, experiences.Count, 5}.Max();
+            int maxRow = new int[]{ educations.Count * 2 , (from x in experiences select x.jobs.Count).Sum(), 5}.Max();
 
-            Range line = (Range)worksheet.Rows[3]; // insert middle line with number of needed rows -3
+            Range line = (Range)worksheet.Rows[3]; // insert middle line with number of needed rows - 3
             Enumerable.Range(0, maxRow - 3).ToList().ForEach(i => line.Insert());
 
-            for (int row = 2; row < maxRow; row++)
+            int rowCounter = 1;
+            foreach (Edu edu in educations) // write education column(4)
             {
-                worksheet.Cells[row, 1].Value = fullName ;
-                worksheet.Cells[row, 2].Value = experiences[row - 2]. ; Continueueueueueueuueue HERE
-                worksheet.Cells[row, 3].Value = experiences[row - 2].field; HERE sütun ayrı doldurulsun
-                worksheet.Cells[row, 4].Value = educations[row - 2].date;
+                worksheet.Cells[rowCounter * 2, 4].Value = edu.schoolName + ", " +  edu.date ;
+                worksheet.Cells[rowCounter * 2 + 1, 4].Value = edu.field;
+                rowCounter++;
             }
+            rowCounter = 2;
+            foreach (Exp exp in experiences) // write experiences columns(2,3)
+            {   
+                worksheet.Cells[rowCounter, 2].Value = exp.totalDuration ;
+                worksheet.Cells[rowCounter, 3].Value = exp.companyName;
+                rowCounter++;
+                foreach (Job job in exp.jobs)
+                {   
+                    worksheet.Cells[rowCounter, 2].Value = job.dateIterval ;
+                    worksheet.Cells[rowCounter, 3].Value = job.title ;
+                    rowCounter++;
+                }
+            }
+            // write user info column(1)
+            worksheet.Cells[2,1].Value = this.;
 
             workbook.Save();
             workbook.Close();
