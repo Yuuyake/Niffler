@@ -20,7 +20,7 @@ namespace Linkedin_Scrapper
 {
     class Scrapper
     {
-        static public IWebDriver driver     = new ChromeDriver(@"YOUR chromedriver.exe PATH");
+        static public IWebDriver driver     = new ChromeDriver("../../");
         static public string loginID        = "YOUR_LOGIN_CRED_MAIL";
         static public string loginPassword  = "YOUR_LOGIN_CRED_PASS";
 
@@ -70,9 +70,11 @@ namespace Linkedin_Scrapper
                         Thread.Sleep(500);
                     else
                         break;
-                }     
+                }
                 // get user infos
-                personList.Add(new Person(personPage));
+                Person person = new Person(personPage);
+                person.writeToExcel();
+                personList.Add(person);
             }
             Console.WriteLineFormatted("============================    DONE    =====================================", Color.Red);
             ReadLine();
@@ -88,53 +90,57 @@ namespace Linkedin_Scrapper
         static public List<Exp> experiences = new List<Exp> { };
         static public List<Edu> educations  = new List<Edu> { };
         static public List<string> languages= new List<string>();
-        static public string fullName   = "??";
-        static public string currTitle  = "??";
-        static public string currPos    = "??";
-        static public string dateBrith  = "??";
+        static public string fullName   = "Full Name";
+        static public string currTitle  = "Current Title";
+        static public string currPos    = "Current Position";
+        static public string dateBrith  = "Birth Date";
 
         public Person(string personPage)
-        {
+        {   
             var userInfos = Scrapper.driver.FindElements(By.XPath("//*[contains(@class,'pv-entity__summary-info')]"));
             var eduInfos  = Scrapper.driver.FindElements(By.ClassName("pv-education-entity"));
             var expInfos  = Scrapper.driver.FindElements(By.ClassName("pv-position-entity"));
 
-            var userID = personPage.Split('/')[4];
-            Write("\r\n\t\t" + userID + "\r\n");
-            Console.WriteFormatted(" |\r\n | EDUCATION:__________________________________________________________________", Color.Cyan);
-            File.WriteAllText(userID + ".txt",
-                " |\r\n | EDUCATION:__________________________________________________________________");
+            fullName = personPage.Split('/')[4];
+            Write("\r\n\t\t" + fullName + "\r\n");
 
+            Console.WriteFormatted(" |\r\n | EDUCATION:__________________________________________________________________", Color.Cyan);
             foreach (var eduInfo in eduInfos)
             {
                 var attrs   = eduInfo.Text.Replace("\r", "").Split('\n').ToList();
                 var newEdu  = new Edu(attrs);
-                File.AppendAllText(userID + ".txt", newEdu.eduPrint());
+                newEdu.eduPrint();
                 educations.Add(newEdu);
             }
-            Console.WriteFormatted(" |\r\n | EXPERIENCE:__________________________________________________________________", Color.Cyan);
-            File.WriteAllText(userID + ".txt",
-                "\r\n | EXPERIENCE:__________________________________________________________________\r\n");
 
+            Console.WriteFormatted(" |\r\n | EXPERIENCE:__________________________________________________________________", Color.Cyan);
             foreach (var expInfo in expInfos)
             {
                 var attrs   = expInfo.Text.Replace("\r", "").Split('\n').ToList();
                 var newExp  = new Exp(attrs);
-                File.AppendAllText(userID + ".txt", newExp.expPrint());
+                newExp.expPrint();
                 experiences.Add(newExp);
             }
-            writeToExcel();
         }
 
-        public static void writeToExcel()
+        public void writeToExcel() 
         {
-            string excelLocation = @"YOUR_EXCEL_FILE_PATH";
+            /*
+             *  AYLARı duration dan sil
+             *  bir exp şirket için total duration değil zaman aralığı 
+             *  kalın yaz
+             *  borderlar sıkıntılı eski template ten kopyala
+             * 
+             * */
+            string templateFile = "../../Resources/template.xlsx"; // @"YOUR_EXCEL_FILE_PATH";
+            string userFile     = "./" + fullName + ".xlsx";
+            File.Copy(templateFile, userFile);
             Application app = new Application();
-            Workbook workbook = app.Workbooks.Open(excelLocation);
+            Workbook workbook = app.Workbooks.Open(Directory.GetCurrentDirectory() + "/" + userFile);
             Worksheet worksheet = workbook.Worksheets[1];
 
             worksheet.Name = "sheet1";
-            int maxRow = new int[]{ educations.Count * 2 , (from x in experiences select x.jobs.Count).Sum(), 5}.Max();
+            int maxRow = new int[]{ educations.Count * 2 , (from x in experiences select x.jobs.Count).Sum() + experiences.Count, 5}.Max();
 
             Range line = (Range)worksheet.Rows[3]; // insert middle line with number of needed rows - 3
             Enumerable.Range(0, maxRow - 3).ToList().ForEach(i => line.Insert());
@@ -160,7 +166,14 @@ namespace Linkedin_Scrapper
                 }
             }
             // write user info column(1)
-            worksheet.Cells[2,1].Value = this.;
+            worksheet.Cells[2, 1].Value = fullName;
+            worksheet.Cells[3, 1].Value = currTitle ;
+            worksheet.Cells[4, 1].Value = currPos;
+            worksheet.Cells[5, 1].Value = "Date Birth";
+            worksheet.Cells[6, 1].Value = dateBrith;
+            worksheet.Cells[7, 1].Value = "Languages";
+            for (var i = 0; i < languages.Count; i++)
+                worksheet.Cells[8 + i,1].Value = languages[i];
 
             workbook.Save();
             workbook.Close();

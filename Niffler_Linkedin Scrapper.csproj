@@ -34,7 +34,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>niffler_icon.ico</ApplicationIcon>
+    <ApplicationIcon>
+    </ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Colorful.Console, Version=1.2.9.0, Culture=neutral, processorArchitecture=MSIL">
@@ -67,12 +68,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\banner.txt" />
+    <None Include="Resources\niffler.ico" />
     <None Include="banner.txt" />
-    <Content Include="niffler_icon.ico" />
-    <Content Include="output-onlinepngtools.ico" />
-    <Content Include="pyConvert.py">
-      <CustomToolNamespace>pyConvert</CustomToolNamespace>
-    </Content>
+    <None Include="icos\niffler_icon.ico" />
   </ItemGroup>
   <ItemGroup>
     <COMReference Include="Microsoft.Office.Core">
