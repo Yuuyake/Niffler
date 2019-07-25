@@ -1,4 +1,4 @@
-<img src="/icos/niffler_icon.ico" width="150" height="150"> 
+<img src="/Resources/niffler.ico" width="150" height="150"> 
 
   # Niffler_Linkedin_Scrapper
   
