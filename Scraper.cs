@@ -29,11 +29,11 @@ using Linkedin_Scrapper.Properties;
 
 namespace Linkedin_Scrapper
 {
-    class Scrapper
+    class Scraper
     {
-        static public IWebDriver driver     = new ChromeDriver("../../");
-        static public string loginID        = "YOUR CREDS";
-        static public string loginPassword  = "YOUR CREDS";
+        static public IWebDriver driver     = new ChromeDriver("./");
+        static public string loginID        = "YOURCREDS";
+        static public string loginPassword  = "YOURCREDS";
 
         [STAThread]
         static void Main()
@@ -52,10 +52,16 @@ namespace Linkedin_Scrapper
             driver.FindElement(By.XPath("//*[@type=\"submit\"]")).Click();
 
             List<string> personPages = new List<string>{
-                "https://www.linkedin.com/in/altan-demirdere-08a56915a/",
-                "https://www.linkedin.com/in/esen-girit-t%C3%BCmer-b99a706/",
-                "https://www.linkedin.com/in/fatih-islamoglu-11892a6/",
-                "https://www.linkedin.com/in/zuhtusoylu/"
+                "https://www.linkedin.com/in/mikefertik/",
+                "https://www.linkedin.com/in/michael-fertik-4b27692/",
+                "https://tr.linkedin.com/in/can-yaman-71a89a3b/",
+                "https://tr.linkedin.com/in/emremetin/",
+                "https://tr.linkedin.com/in/mguctas/",
+                "https://www.linkedin.com/in/gelfenbeyn/",
+                "https://www.linkedin.com/in/kat-duarte-45b672a9/",
+                "https://www.linkedin.com/in/erin-wright-348b3b7/",
+                "https://www.linkedin.com/in/alex-mastrangelo-b992a898/",
+                "https://www.linkedin.com/in/jessica-jackson-esq-a08a613/",
             };
             List<Person> personList = new List<Person> { };
             foreach (string personPage in personPages)
@@ -63,23 +69,29 @@ namespace Linkedin_Scrapper
                 try
                 {
                     Console.WriteLineFormatted("===============================================================================================", Color.Red);
-                    Scrapper.driver.Navigate().GoToUrl(personPage);
-
+                    Scraper.driver.Navigate().GoToUrl(personPage);
                     // clicking show more buttons
-                    var showMoreButtons = Scrapper.driver.FindElements(By.ClassName("pv-profile-section__text-truncate-toggle")).ToList();
+                    var showMoreButtons = Scraper.driver.FindElements(By.ClassName("pv-profile-section__text-truncate-toggle")).ToList();
                     var expectedButtons = new List<string> { "more role", "more education", "more experience" };
                     var clickButtons = showMoreButtons.Where(button => expectedButtons.Count(expcButton => button.Text.Contains(expcButton)) > 0).ToList();
+                    int count = clickButtons.Count;
                     foreach (var bt in clickButtons)
                         bt.Click();
-
-                    //wait to make sure buttons clicked and data is loaded properly
                     while (true)
                     {
-                        var showFewerButtons = Scrapper.driver.FindElements(By.ClassName("pv-profile-section__text-truncate-toggle")).ToList();
+                        //wait to make sure buttons clicked and data is loaded properly
+                        var showFewerButtons = Scraper.driver.FindElements(By.ClassName("pv-profile-section__text-truncate-toggle")).ToList();
                         var waitedButtons = new List<string> { "fewer role", "fewer education", "fewer experience" };
                         var fewButtons = showFewerButtons.Where(button => waitedButtons.Count(wButtons => button.Text.Contains(wButtons)) > 0).ToList();
-                        if (fewButtons.Count < clickButtons.Count)
+                        if (fewButtons.Count != count)
+                        {
                             Thread.Sleep(500);
+                            showMoreButtons = Scraper.driver.FindElements(By.ClassName("pv-profile-section__text-truncate-toggle")).ToList();
+                            expectedButtons = new List<string> { "more role", "more education", "more experience" };
+                            clickButtons = showMoreButtons.Where(button => expectedButtons.Count(expcButton => button.Text.Contains(expcButton)) > 0).ToList();
+                            foreach (var bt in clickButtons)
+                                bt.Click();
+                        }
                         else
                             break;
                     }
@@ -115,19 +127,21 @@ namespace Linkedin_Scrapper
 
         public Person(string personPage)
         {   
-            var userInfos = Scrapper.driver.FindElements(By.XPath("//*[contains(@class,'pv-entity__summary-info')]"));
-            var eduInfos  = Scrapper.driver.FindElements(By.ClassName("pv-education-entity"));
-            var expInfos  = Scrapper.driver.FindElements(By.ClassName("pv-position-entity"));
+            var userInfos = Scraper.driver.FindElements(By.XPath("//*[contains(@class,'pv-entity__summary-info')]"));
+            var eduInfos  = Scraper.driver.FindElements(By.ClassName("pv-education-entity"));
+            var expInfos  = Scraper.driver.FindElements(By.ClassName("pv-position-entity"));
 
-            List<string> currentInfos = Scrapper.driver.FindElement(By.CssSelector(".flex-1.mr5")).Text.Replace("\r","").Split('\n').ToList();
+            List<string> currentInfos = Scraper.driver.FindElement(By.CssSelector(".flex-1.mr5")).Text.Replace("\r","").Split('\n').ToList();
             int trashIndex = currentInfos.FindIndex(inf => inf.Contains("degree connection") == true);
             if(trashIndex > -1)
                 currentInfos.RemoveRange(trashIndex,2);
-            currentInfos = currentInfos.Where(inf => inf.Contains("has a account") == false).ToList();
+            currentInfos = currentInfos.Where(info => (info.Contains("has a account") || info.Contains("influencer account")) == false).ToList();
 
             fullName    = currentInfos[0];
             currTitle   = currentInfos[1];
             trashIndex  = currentInfos[2].Split(' ').ToList().IndexOf("connections");
+            PROBLEEEEEEEEEEM INDEX 0 olursa
+            trashIndex = trashIndex == -1 ? 1 : trashIndex;
             currPos     = String.Join(",", currentInfos[2].Split(' ').ToList().GetRange(0, trashIndex - 1));
 
             Write("\r\n\t\t" + fullName + "\r\n");
@@ -152,7 +166,7 @@ namespace Linkedin_Scrapper
 
         public void writeToExcel() 
         {
-            string templateFile = "../../Resources/template.xlsx"; // @"YOUR_EXCEL_FILE_PATH";
+            string templateFile = "./template.xlsx"; // @"YOUR_EXCEL_FILE_PATH";
             string userFile     = "./" + fullName + ".xlsx";
             File.Copy(templateFile, userFile);
             Application app = new Application();
