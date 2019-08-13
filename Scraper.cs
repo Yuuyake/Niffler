@@ -55,32 +55,30 @@ namespace Linkedin_Scrapper
             Console.WriteLineFormatted("\tCurrent Code Page is  : " + Console.OutputEncoding.WebName,Color.LightGoldenrodYellow);
             Console.OutputEncoding = Encoding.UTF8;
             Console.WriteLineFormatted("\tCode Page is set to   : " + Console.OutputEncoding.WebName,Color.LightGoldenrodYellow);
-
-            printMenu();
-
-            Console.WriteLineFormatted("\n ╟\n ╟► Opening chrome browser \"" + chromeBrowserLoc + "\" . . .\n", Color.Cyan);
-            ChromeOptions chromeOptions = new ChromeOptions();
-            chromeOptions.AddArguments("--no-sandbox");
-            chromeOptions.BinaryLocation = chromeBrowserLoc;
-            driver = new ChromeDriver(chromeDriverLoc,chromeOptions);
-
-            Console.Clear();
-            Console.WriteLineFormatted(banner, Color.LightGoldenrodYellow);
-            Console.Write("\n ╔═════════════════════════════════════════════════════════════════════════════════════════════════\n ║");
-            Console.WriteLine("\n ╟► Opening login page \"https://www.linkedin.com/login?trk=guest_homepage-basic_nav-header-signin\" . . .");
-
-            driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(3);
-            driver.Navigate().GoToUrl("https://www.linkedin.com/login?trk=guest_homepage-basic_nav-header-signin");
-            Console.WriteLine(" ╟\n ╟► Giving credentials to login page . . .\n\tLoginID : " + loginID + "\n\tPassword: ********** ");
-
-            driver.FindElement(By.XPath("//*[@id=\"username\"]")).SendKeys(loginID);
-            driver.FindElement(By.XPath("//*[@id=\"password\"]")).SendKeys(loginPassword);
-            driver.FindElement(By.XPath("//*[@type=\"submit\"]")).Click();
-
-            List<Person> personList = new List<Person> { };
-
             while (true)
             {
+                printMenu();
+
+                Console.WriteLineFormatted("\n ╟\n ╟► Opening chrome browser \"" + chromeBrowserLoc + "\" . . .\n", Color.Cyan);
+                ChromeOptions chromeOptions = new ChromeOptions();
+                chromeOptions.AddArguments("--no-sandbox");
+                chromeOptions.BinaryLocation = chromeBrowserLoc;
+                driver = new ChromeDriver(chromeDriverLoc,chromeOptions);
+
+                Console.Clear();
+                Console.WriteLineFormatted(banner, Color.LightGoldenrodYellow);
+                Console.Write("\n ╔═════════════════════════════════════════════════════════════════════════════════════════════════\n ║");
+                Console.WriteLine("\n ╟► Opening login page \"https://www.linkedin.com/login?trk=guest_homepage-basic_nav-header-signin\" . . .");
+
+                driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(3);
+                driver.Navigate().GoToUrl("https://www.linkedin.com/login?trk=guest_homepage-basic_nav-header-signin");
+                Console.WriteLine(" ╟\n ╟► Giving credentials to login page . . .\n\tLoginID : " + loginID + "\n\tPassword: ********** ");
+
+                driver.FindElement(By.XPath("//*[@id=\"username\"]")).SendKeys(loginID);
+                driver.FindElement(By.XPath("//*[@id=\"password\"]")).SendKeys(loginPassword);
+                driver.FindElement(By.XPath("//*[@type=\"submit\"]")).Click();
+
+                List<Person> personList = new List<Person> { };
                 foreach (string personPage in personPages)
                 { // process each user
                     try
@@ -132,6 +130,7 @@ namespace Linkedin_Scrapper
                 var finish = ReadLine();
                 if (finish == "FF")
                     break;
+                driver.Close();
             }
             driver.Quit();
         }
