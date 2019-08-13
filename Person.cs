@@ -28,49 +28,64 @@ namespace Linkedin_Scrapper
     /// </summary>
     public class Person
     {
-        static public List<Exp> experiences  = new List<Exp> { };
-        static public List<Edu> educations   = new List<Edu> { };
-        static public List<string> languages = new List<string>() {"Language1","Language2","Language3" };
+        static private List<Exp> experiences;
+        static private List<Edu> educations;
+        static private List<string> languages;
         static public string fullName   = "Full Name";
         static public string currTitle  = "Current Title";
         static public string currPos    = "Current Position";
         static public string dateBrith  = "Birth Date";
 
         public Person(string personPage)
-        {   
+        {
+            experiences = new List<Exp>() { };
+            educations  = new List<Edu>() { };
+            languages   = new List<string>() { "Language1", "Language2", "Language3" };
+
             var userInfos = Scraper.driver.FindElements(By.XPath("//*[contains(@class,'pv-entity__summary-info')]"));
             var eduInfos  = Scraper.driver.FindElements(By.ClassName("pv-education-entity"));
             var expInfos  = Scraper.driver.FindElements(By.ClassName("pv-position-entity"));
 
-            List<string> currentInfos = Scraper.driver.FindElement(By.CssSelector(".flex-1.mr5")).Text.Replace("\r","").Split('\n').ToList();
+            List<string> currentInfos = Scraper.driver.FindElement(
+                By.CssSelector(".flex-1.mr5")).Text.Replace("\r","").Replace("Contact info","").Split('\n').ToList();
             int trashIndex = currentInfos.FindIndex(inf => inf.Contains("degree connection") == true);
             if(trashIndex > -1)
                 currentInfos.RemoveRange(trashIndex,2);
-            currentInfos = currentInfos.Where(info => (info.Contains("has a account") || info.Contains("influencer account")) == false).ToList();
+
+            currentInfos = currentInfos.Where(info => (
+                info.Contains("account") ||
+                info.Contains("degree connection") ||
+                info.Contains("influencer account")
+                ) == false).ToList();
 
             fullName    = currentInfos[0];
             currTitle   = currentInfos[1];
-            trashIndex  = currentInfos[2].Split(' ').ToList().IndexOf("connections");
-            PROBLEEEEEEEEEEM INDEX 0 olursa
-            trashIndex = trashIndex == -1 ? 1 : trashIndex;
-            currPos     = String.Join(",", currentInfos[2].Split(' ').ToList().GetRange(0, trashIndex - 1));
+            var trahser = currentInfos[2].Split(' ').ToList();//
+            int tindex  = trahser.IndexOf("connections") > trahser.IndexOf("followers") ? trahser.IndexOf("connections") : trahser.IndexOf("followers");
+            currPos     = tindex == -1 ? currentInfos[2] : String.Join(",", trahser.GetRange(0, tindex - 1 ));
+            currPos     = currPos.Replace(",,", ",");
 
-            Write("\r\n\t\t" + fullName + "\r\n");
-            Console.WriteFormatted(" |\r\n | EDUCATION:__________________________________________________________________\n", Color.Cyan);
+            Write("\n │\n │\t");
+            Console.BackgroundColor = Color.Gray;
+            Write(fullName);
+            Console.BackgroundColor = Color.Black;
+            Write("\n │");
+            Console.Write("\n │ EDUCATION:\n │");
             foreach (var eduInfo in eduInfos)
             {
+
                 var attrs   = eduInfo.Text.Replace("\r", "").Split('\n').ToList();
                 var newEdu  = new Edu(attrs);
-                newEdu.eduPrint();
+                newEdu.ePrint();
                 educations.Add(newEdu);
             }
 
-            Console.WriteFormatted(" |\r\n | EXPERIENCE:__________________________________________________________________\n", Color.Cyan);
+            Console.Write("\n │\n │ EXPERIENCE:\n │");
             foreach (var expInfo in expInfos)
             {
                 var attrs   = expInfo.Text.Replace("\r", "").Split('\n').ToList();
                 var newExp  = new Exp(attrs);
-                newExp.expPrint();
+                newExp.ePrint();
                 experiences.Add(newExp);
             }
         }
@@ -79,13 +94,13 @@ namespace Linkedin_Scrapper
         {
             string templateFile = "./template.xlsx"; // @"YOUR_EXCEL_FILE_PATH";
             string userFile     = "./" + fullName + ".xlsx";
-            File.Copy(templateFile, userFile);
+            File.Copy(templateFile, userFile,true);
             Application app = new Application();
             Workbook workbook = app.Workbooks.Open(Directory.GetCurrentDirectory() + "/" + userFile);
             Worksheet worksheet = workbook.Worksheets[1];
 
             worksheet.Name = "sheet1";
-            int maxRow = new int[]{ educations.Count * 2 , (from x in experiences select x.jobs.Count).Sum() + experiences.Count, 5}.Max();
+            int maxRow = new int[]{ educations.Count * 2 , (from x in experiences select x.jobs.Count).Sum() + experiences.Count, 7}.Max();
 
             Range line = (Range)worksheet.Rows[3]; // insert middle line with number of needed rows - 3
             Enumerable.Range(0, maxRow - 3).ToList().ForEach(i => line.Insert());

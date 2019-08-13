@@ -31,11 +31,11 @@ namespace Linkedin_Scrapper
             this.date = dateIndex != -1 ? eduInfo[dateIndex + 1] : "??";
             this.schoolName = eduInfo[0];
         }
-        public string eduPrint()
+        public string ePrint()
         {
-            var ret = "\r\n\t" + schoolName + "\r\n\t" + field + "\r\n\t" + date + "\r\n";
-            Console.WriteLineFormatted("\t" + schoolName,Color.LightGoldenrodYellow);
-            Console.WriteLine("\t" + field + "\r\n\t" + date + "\r\n");
+            var ret = "\n │\t" + schoolName + "\n │\t" + field + "\n │\t" + date;
+            Console.WriteFormatted("\n │\t" + schoolName, Color.LightGoldenrodYellow);
+            Console.Write("\n │\t" + field + "\n │\t" + date + "\n │");
             return ret;
         }
     }

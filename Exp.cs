@@ -13,7 +13,7 @@ namespace Linkedin_Scrapper
         public string companyName;
         public string totalDuration;
         public string dateIterval;
-        public List<Job> jobs = new List<Job> { };
+        public List<Job> jobs = new List<Job>(){ };
         public List<string> months = new List<string>() { "Jan ", "Feb ", "Mar ", "Apr ", "May ", "Jun ", "Jul ", "Aug ", "Sep ", "Oct ", "Nov ", "Dec " };
 
         public Exp(List<string> exp)
@@ -36,23 +36,29 @@ namespace Linkedin_Scrapper
             int jobAmount = exp.Count(ss => ss == "Title");
             for (var i = 0; i < jobAmount; i++)
             {
-                jobs.Add(new Job(exp.GetRange(exp.IndexOf("Title"), 6)));
-                var indexOfSecondExp = exp.IndexOf("Title", exp.IndexOf("Title") + 1);
-                if (indexOfSecondExp != -1)
-                    exp.RemoveRange(exp.IndexOf("Title"), indexOfSecondExp);
+                var indexOfFirsExp = exp.IndexOf("Title");
+                var indexOfNextExp = exp.IndexOf("Title", exp.IndexOf("Title") + 1) == -1 ? exp.Count -1 : exp.IndexOf("Title", exp.IndexOf("Title") + 1);
+
+                if (jobAmount == 1)
+                    jobs.Add(new Job(exp));
+                else
+                {
+                    jobs.Add(new Job(exp.GetRange(indexOfFirsExp, indexOfNextExp)));
+                    exp.RemoveRange(indexOfFirsExp, indexOfNextExp);
+                }
             }
 
             var tempStartDates = jobs.Select(jj => jj.dateIterval.Split('–')[0]).ToList();
-            var tempEndDates = jobs.Select(jj => jj.dateIterval.Split('–')[1]).ToList();
+            var tempEndDates   = jobs.Select(jj => jj.dateIterval.Split('–')[1]).ToList();
             tempStartDates.Sort();
             tempEndDates.Sort();
             dateIterval = tempStartDates.First() + " to " + tempEndDates.Last();
             months.Where(mm => dateIterval.Contains(mm)).ToList().ForEach(existmm => dateIterval = dateIterval.Replace(existmm,""));
         }
-        internal string expPrint()
+        internal string ePrint()
         {
-            var ret = "\r\n\t>>" + companyName + "\t" + dateIterval;
-            Console.WriteLine(ret,Color.LightGoldenrodYellow);
+            var ret = "\n │\t" + companyName + " >> " + dateIterval;
+            Console.Write(ret,Color.LightGoldenrodYellow);
             foreach (Job job in jobs)
                 job.eprint();
             return ret;

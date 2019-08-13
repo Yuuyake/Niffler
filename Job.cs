@@ -18,7 +18,7 @@ namespace Linkedin_Scrapper
         {
             title       = jobInfos.IndexOf("Title") != -1 ? jobInfos[jobInfos.IndexOf("Title") + 1] : "??";
             empDuration = jobInfos.IndexOf("Employment Duration") != -1 ? jobInfos[jobInfos.IndexOf("Employment Duration") + 1] : "??";
-            dateIterval = jobInfos.IndexOf("Dates Employed") != -1 ? jobInfos[jobInfos.IndexOf("Dates Employed") + 1] : "??";
+            dateIterval = jobInfos.IndexOf("Dates Employed")      != -1 ? jobInfos[jobInfos.IndexOf("Dates Employed") + 1]      : "?? – ??";
             if(empDuration.Contains("less than a year"))
             {
                 dateIterval = dateIterval + " – " + dateIterval;
@@ -35,11 +35,11 @@ namespace Linkedin_Scrapper
 
         internal string eprint()
         {
-            var ret = 
-                "\t" + title +
-                "\r\n\t" + dateIterval +
-                "\r\n\t" + empDuration + "\r";
-            Console.WriteLine(ret);
+            var ret =
+                "\n │\t"   + title +
+                "\n │\t" + dateIterval +
+                "\n │\t" + empDuration + "\n │";
+            Console.Write(ret);
             return ret;
         }
     }
