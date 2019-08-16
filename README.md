@@ -3,5 +3,5 @@
   # Niffler
   Linkedin Profile Scraper
   
-Scrapes Linkedin user profiles with Selenium, CSharp
+  > Scrapes Linkedin user profiles with Selenium, CSharp
 
