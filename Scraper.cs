@@ -29,11 +29,12 @@ namespace Linkedin_Scrapper
     class Scraper
     {
         static public IWebDriver driver;
-        static public string chromeBrowserLoc  = @".\ChromePortable\App\Chrome-bin\chrome.exe";
-        static public string chromeDriverLoc   = @".\ChromePortable";
+        static public string chromeBrowserLoc  = @".\Resources\ChromePortable\App\Chrome-bin\chrome.exe";
+        static public string chromeDriverLoc   = @".\Resources";
         static public string loginID        = "YOURCREDS";
         static public string loginPassword  = "YOURCREDS";
         static public string banner         = Resources.banner;
+        static public List<Person> personList = new List<Person> { };
         static public List<string> personPages = new List<string>{
                 //"https://www.linkedin.com/in/mikefertik/",
                 //"https://www.linkedin.com/in/michael-fertik-4b27692/",
@@ -43,28 +44,32 @@ namespace Linkedin_Scrapper
                 //"https://www.linkedin.com/in/gelfenbeyn/",
                 //"https://www.linkedin.com/in/kat-duarte-45b672a9/",
                 //"https://www.linkedin.com/in/erin-wright-348b3b7/",
-                "https://www.linkedin.com/in/alex-mastrangelo-b992a898/",
-                "https://www.linkedin.com/in/jessica-jackson-esq-a08a613/",
+                //"https://www.linkedin.com/in/alex-mastrangelo-b992a898/",
+                //"https://www.linkedin.com/in/jessica-jackson-esq-a08a613/",
             };
         [STAThread]
         static void Main()
         {
             Console.Title = "Niffler";
-            
+            Console.BackgroundColor = Color.Black;
+            Console.Clear();
+            Console.SetWindowSize(Console.LargestWindowWidth / 2, Console.LargestWindowHeight - 1);
+            //Console.SetWindowPosition((Console.LargestWindowWidth - 80) / 2, 0);
             Console.WriteLineFormatted(banner, Color.LightGoldenrodYellow);
+
             Console.WriteLineFormatted("\tCurrent Code Page is  : " + Console.OutputEncoding.WebName,Color.LightGoldenrodYellow);
             Console.OutputEncoding = Encoding.UTF8;
             Console.WriteLineFormatted("\tCode Page is set to   : " + Console.OutputEncoding.WebName,Color.LightGoldenrodYellow);
+
+            Console.WriteLineFormatted("\n ╟\n ╟► Opening chrome browser \"" + chromeBrowserLoc + "\" . . .\n", Color.Cyan);
+            ChromeOptions chromeOptions = new ChromeOptions();
+            chromeOptions.AddArguments("--no-sandbox");
+            chromeOptions.BinaryLocation = chromeBrowserLoc;
+            driver = new ChromeDriver(chromeDriverLoc, chromeOptions);
+
             while (true)
             {
                 printMenu();
-
-                Console.WriteLineFormatted("\n ╟\n ╟► Opening chrome browser \"" + chromeBrowserLoc + "\" . . .\n", Color.Cyan);
-                ChromeOptions chromeOptions = new ChromeOptions();
-                chromeOptions.AddArguments("--no-sandbox");
-                chromeOptions.BinaryLocation = chromeBrowserLoc;
-                driver = new ChromeDriver(chromeDriverLoc,chromeOptions);
-
                 Console.Clear();
                 Console.WriteLineFormatted(banner, Color.LightGoldenrodYellow);
                 Console.Write("\n ╔═════════════════════════════════════════════════════════════════════════════════════════════════\n ║");
@@ -78,7 +83,6 @@ namespace Linkedin_Scrapper
                 driver.FindElement(By.XPath("//*[@id=\"password\"]")).SendKeys(loginPassword);
                 driver.FindElement(By.XPath("//*[@type=\"submit\"]")).Click();
 
-                List<Person> personList = new List<Person> { };
                 foreach (string personPage in personPages)
                 { // process each user
                     try
@@ -113,7 +117,6 @@ namespace Linkedin_Scrapper
                                 break;
                         }
                         // get user infos
-                        Console.WriteFormatted("\n │► Saving users info . . .", Color.Cyan);
                         Person tempPerson = new Person(personPage);
                         tempPerson.writeToExcel();
                         personList.Add(tempPerson);
@@ -125,13 +128,14 @@ namespace Linkedin_Scrapper
                     }
                     Console.Write("\n └─────────────────────────────────────────────────────────────────────────────────────────────────");
                 }
-                Console.WriteLineFormatted("============================    ALL DONE    =====================================", Color.Red);
-                Console.WriteLine("\n\tType \"FF\" to finish, anything else to redo: ");
+                Console.WriteFormatted("\n\n=".PadRight(Console.WindowWidth-1,'='), Color.Gray);
+                Console.WriteFormatted("\n=".PadRight(Console.WindowWidth/2 - 8, '=') + "   ALL DONE   " + "=".PadRight(Console.WindowWidth/2 - 8, '='), Color.Gray);
+                Console.WriteFormatted("\n\n\n\tType \"FF\" to finish, anything else to redo: ",Color.White);
                 var finish = ReadLine();
                 if (finish == "FF")
                     break;
-                driver.Close();
             }
+            driver.Close();
             driver.Quit();
         }
         static void printMenu()

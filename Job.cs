@@ -33,7 +33,7 @@ namespace Linkedin_Scrapper
             this.empDuration = empDuration;
         }
 
-        internal string eprint()
+        internal string PrintToConsole()
         {
             var ret =
                 "\n │\t"   + title +

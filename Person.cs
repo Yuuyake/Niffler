@@ -42,15 +42,47 @@ namespace Linkedin_Scrapper
             educations  = new List<Edu>() { };
             languages   = new List<string>() { "Language1", "Language2", "Language3" };
 
-            var userInfos = Scraper.driver.FindElements(By.XPath("//*[contains(@class,'pv-entity__summary-info')]"));
-            var eduInfos  = Scraper.driver.FindElements(By.ClassName("pv-education-entity"));
-            var expInfos  = Scraper.driver.FindElements(By.ClassName("pv-position-entity"));
+            //var userInfos = Scraper.driver.FindElements(By.XPath("//*[contains(@class,'pv-entity__summary-info')]"));
+            var eduInfos  = Scraper.driver.FindElements(By.ClassName("pv-education-entity")).Select(ed => ed.Text.Replace("\r", "")).ToList();
+            var expInfos  = Scraper.driver.FindElements(By.ClassName("pv-position-entity")).Select(ex => ex.Text.Replace("\r", "")).ToList();
+            var currInfos = Scraper.driver.FindElement(By.CssSelector(".flex-1.mr5")).Text.Replace("\r","").Replace("Contact info","").Split('\n').ToList();
 
-            List<string> currentInfos = Scraper.driver.FindElement(
-                By.CssSelector(".flex-1.mr5")).Text.Replace("\r","").Replace("Contact info","").Split('\n').ToList();
+            SetCurrInfo(currInfos);
+            SetEducation(eduInfos);
+            SetExperience(expInfos);
+            PrintToConsole();
+        }
+
+        private void SetExperience(List<string> expInfos)
+        {
+            Console.Write("\n │> Scraping Experiences ...");
+            //expInfos.ForEach(edu => educations.Add(new Edu(edu.Split('\n'))));
+            foreach (var expInfo in expInfos)
+            {
+                var attrs = expInfo.Split('\n').ToList();
+                experiences.Add(new Exp(attrs));
+            }
+            Console.WriteFormatted("\r │► Scraping Experiences DONE", Color.Green);
+        }
+
+        private void SetEducation(List<string> eduInfos)
+        {
+            Console.Write("\n │> Scraping Educations ...");
+            //eduInfos.ForEach(edu => educations.Add(new Edu(edu.Split('\n'))));
+            foreach (var eduInfo in eduInfos)
+            {
+                var attrs = eduInfo.Split('\n');
+                educations.Add(new Edu(attrs));
+            }
+            Console.WriteFormatted("\r │► Scraping Educations DONE", Color.Green);
+        }
+
+        private void SetCurrInfo(List<string> currentInfos)
+        {
+            Console.Write("\n │> Scraping current positions ...");
             int trashIndex = currentInfos.FindIndex(inf => inf.Contains("degree connection") == true);
-            if(trashIndex > -1)
-                currentInfos.RemoveRange(trashIndex,2);
+            if (trashIndex > -1)
+                currentInfos.RemoveRange(trashIndex, 2);
 
             currentInfos = currentInfos.Where(info => (
                 info.Contains("account") ||
@@ -58,42 +90,35 @@ namespace Linkedin_Scrapper
                 info.Contains("influencer account")
                 ) == false).ToList();
 
-            fullName    = currentInfos[0];
-            currTitle   = currentInfos[1];
+            fullName = currentInfos[0];
+            currTitle = currentInfos[1];
             var trahser = currentInfos[2].Split(' ').ToList();//
-            int tindex  = trahser.IndexOf("connections") > trahser.IndexOf("followers") ? trahser.IndexOf("connections") : trahser.IndexOf("followers");
-            currPos     = tindex == -1 ? currentInfos[2] : String.Join(",", trahser.GetRange(0, tindex - 1 ));
-            currPos     = currPos.Replace(",,", ",");
+            int tindex = trahser.IndexOf("connections") > trahser.IndexOf("followers") ? trahser.IndexOf("connections") : trahser.IndexOf("followers");
+            currPos = tindex == -1 ? currentInfos[2] : String.Join(" ", trahser.GetRange(0, tindex - 1));
+            currPos = currPos.Replace(",,", ",");
+            Console.WriteFormatted("\r │► Scraping current positions DONE", Color.Green);
+        }
 
+        private void PrintToConsole()
+        {
             Write("\n │\n │\t");
-            Console.BackgroundColor = Color.Gray;
-            Write(fullName);
+            Console.BackgroundColor = Color.White;
+            Console.WriteFormatted(fullName.PadRight(91), Color.Blue);
             Console.BackgroundColor = Color.Black;
             Write("\n │");
-            Console.Write("\n │ EDUCATION:\n │");
-            foreach (var eduInfo in eduInfos)
-            {
 
-                var attrs   = eduInfo.Text.Replace("\r", "").Split('\n').ToList();
-                var newEdu  = new Edu(attrs);
-                newEdu.ePrint();
-                educations.Add(newEdu);
-            }
+            Console.Write("\n │ EDUCATION:\n │");
+            educations.ForEach(edu => edu.PrintToConsole());
 
             Console.Write("\n │\n │ EXPERIENCE:\n │");
-            foreach (var expInfo in expInfos)
-            {
-                var attrs   = expInfo.Text.Replace("\r", "").Split('\n').ToList();
-                var newExp  = new Exp(attrs);
-                newExp.ePrint();
-                experiences.Add(newExp);
-            }
+            experiences.ForEach(exp => exp.PrintToConsole());
         }
 
         public void writeToExcel() 
         {
-            string templateFile = "./template.xlsx"; // @"YOUR_EXCEL_FILE_PATH";
-            string userFile     = "./" + fullName + ".xlsx";
+            Console.WriteFormatted("\n │► Writing to excel . . .", Color.Cyan);
+            string templateFile = @".\Resources\template.xlsx"; // @"YOUR_EXCEL_FILE_PATH";
+            string userFile     = @".\" + fullName + ".xlsx";
             File.Copy(templateFile, userFile,true);
             Application app = new Application();
             Workbook workbook = app.Workbooks.Open(Directory.GetCurrentDirectory() + "/" + userFile);

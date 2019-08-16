@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Console = Colorful.Console;
 using System.Drawing;
+using System.Linq;
 
 namespace Linkedin_Scrapper
 {
@@ -20,9 +21,9 @@ namespace Linkedin_Scrapper
             this.field = field;
             this.xx = xx;
         }
-        public Edu(List<string> eduInfo)
+        public Edu(string[] _eduInfo)
         {
-
+            var eduInfo = _eduInfo.ToList();
             var fieldIndex = eduInfo.IndexOf("Field Of Study");
             if (fieldIndex == -1)
                 fieldIndex = eduInfo.IndexOf("Degree Name");
@@ -31,7 +32,7 @@ namespace Linkedin_Scrapper
             this.date = dateIndex != -1 ? eduInfo[dateIndex + 1] : "??";
             this.schoolName = eduInfo[0];
         }
-        public string ePrint()
+        public string PrintToConsole()
         {
             var ret = "\n │\t" + schoolName + "\n │\t" + field + "\n │\t" + date;
             Console.WriteFormatted("\n │\t" + schoolName, Color.LightGoldenrodYellow);

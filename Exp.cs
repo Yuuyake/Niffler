@@ -37,14 +37,13 @@ namespace Linkedin_Scrapper
             for (var i = 0; i < jobAmount; i++)
             {
                 var indexOfFirsExp = exp.IndexOf("Title");
-                var indexOfNextExp = exp.IndexOf("Title", exp.IndexOf("Title") + 1) == -1 ? exp.Count -1 : exp.IndexOf("Title", exp.IndexOf("Title") + 1);
-
                 if (jobAmount == 1)
                     jobs.Add(new Job(exp));
                 else
                 {
-                    jobs.Add(new Job(exp.GetRange(indexOfFirsExp, indexOfNextExp)));
-                    exp.RemoveRange(indexOfFirsExp, indexOfNextExp);
+                    var indexOfNextExp = exp.IndexOf("Title", exp.IndexOf("Title") + 1);
+                    jobs.Add(new Job(exp.GetRange(indexOfFirsExp, indexOfNextExp == -1 ? exp.Count : indexOfNextExp)));
+                    exp.RemoveRange(indexOfFirsExp, indexOfNextExp == -1 ? exp.Count : indexOfNextExp);
                 }
             }
 
@@ -55,12 +54,12 @@ namespace Linkedin_Scrapper
             dateIterval = tempStartDates.First() + " to " + tempEndDates.Last();
             months.Where(mm => dateIterval.Contains(mm)).ToList().ForEach(existmm => dateIterval = dateIterval.Replace(existmm,""));
         }
-        internal string ePrint()
+        internal string PrintToConsole()
         {
             var ret = "\n │\t" + companyName + " >> " + dateIterval;
             Console.Write(ret,Color.LightGoldenrodYellow);
             foreach (Job job in jobs)
-                job.eprint();
+                job.PrintToConsole();
             return ret;
         }
     }
